@@ -30,13 +30,13 @@ struct BotanicaApp: App {
                 setupNotificationDelegate()
             }
         }
-        .modelContainer(for: [
-            Plant.self,
-            CareEvent.self,
-            Reminder.self,
-            Photo.self,
-            CarePlan.self
-        ])
+        .modelContainer({
+            let schema = Schema([
+                Plant.self, CareEvent.self, Reminder.self, Photo.self, CarePlan.self
+            ])
+            let config = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
+            return try! ModelContainer(for: schema, configurations: [config])
+        }())
     }
     
     /// Configure notification delegate for handling notification taps
