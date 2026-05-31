@@ -1,0 +1,32 @@
+name: Build iOS App
+
+on: [workflow_dispatch] # This allows you to run it manually
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Unsigned IPA
+        run: |
+          # 1. Build the archive without signing it yet
+          xcodebuild archive \
+            -scheme Botanica \
+            -archivePath Botanica.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+          # 2. Package it into an IPA file
+          mkdir -p Payload
+          mv Botanica.xcarchive/Products/Applications/Botanica.app Payload/
+          zip -r Botanica.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Botanica-App
+          path: Botanica.ipa
